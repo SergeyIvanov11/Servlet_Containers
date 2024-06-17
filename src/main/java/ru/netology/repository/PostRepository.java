@@ -7,11 +7,10 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PostRepository {
-    private final ConcurrentHashMap<Long, Post> repository;
+    private final ConcurrentHashMap<Integer, Post> repository;
 
     public PostRepository() {
         repository = new ConcurrentHashMap<>();
-        repository.put(1L, new Post(23, "first"));
     }
 
     public List<Post> all() {
@@ -23,14 +22,20 @@ public class PostRepository {
     }
 
     public Post save(Post post) {
-        if (repository.isEmpty()) {
-            return repository.put(1L, post);
-        } else if (post.getId() == 0) {
-            return repository.put((long) repository.size() + 1, post);
-        } else if (repository.containsKey(post.getId())) {
-            return repository.replace(post.getId(), post);
+        if (repository.containsKey(post.hashCode())) {
+            return repository.replace(post.hashCode(), post);
         }
-        return new Post(0, "Error! Not saved!");
+        return repository.put(post.hashCode(), post);
+/*
+Как должен работать save:
+
+-Если от клиента приходит пост с id=0, значит, это создание нового поста. Вы сохраняете его в списке
+и присваиваете ему новый id. Достаточно хранить счётчик с целым числом и увеличивать на 1
+при создании каждого нового поста.
+-Если от клиента приходит пост с id !=0, значит, это сохранение (обновление) существующего поста.
+Вы ищете его в списке по id и обновляете. Продумайте самостоятельно, что вы будете делать, если поста
+с таким id не оказалось: здесь могут быть разные стратегии.
+ */
     }
 
     public void removeById(long id) {
