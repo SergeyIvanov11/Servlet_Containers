@@ -11,7 +11,7 @@ public class PostRepository {
 
     public PostRepository() {
         repository = new ConcurrentHashMap<>();
-        repository.put(1L, new Post(23, "first"));
+       // repository.put(1L, new Post(23, "first"));
     }
 
     public List<Post> all() {
