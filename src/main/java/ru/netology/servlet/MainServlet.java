@@ -1,6 +1,5 @@
 package ru.netology.servlet;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import ru.netology.controller.PostController;
 import ru.netology.repository.PostRepository;
