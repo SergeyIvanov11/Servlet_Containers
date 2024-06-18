@@ -5,9 +5,10 @@ import ru.netology.model.Post;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class PostRepository {
-    private final ConcurrentHashMap<Integer, Post> repository;
+    private final ConcurrentHashMap<AtomicLong, Post> repository;
 
     public PostRepository() {
         repository = new ConcurrentHashMap<>();
@@ -18,14 +19,19 @@ public class PostRepository {
     }
 
     public Optional<Post> getById(long id) {
-        return Optional.ofNullable(repository.get(id));
+        return Optional.ofNullable(repository.get(new AtomicLong(id)));
     }
 
     public Post save(Post post) {
-        if (repository.containsKey(post.hashCode())) {
-            return repository.replace(post.hashCode(), post);
+        if(post.getId() == 0){
+            return repository.put(new AtomicLong(repository.size() + 1), post);
         }
-        return repository.put(post.hashCode(), post);
+       for(AtomicLong al : repository.keySet()){
+           if(al.intValue() == post.getId()){
+               return repository.replace(al, post);
+           }
+       }
+        return repository.put(new AtomicLong(repository.size() + 1), post);
 /*
 Как должен работать save:
 
@@ -39,6 +45,6 @@ public class PostRepository {
     }
 
     public void removeById(long id) {
-        repository.remove(id);
+        repository.remove(new AtomicLong(id));
     }
 }
