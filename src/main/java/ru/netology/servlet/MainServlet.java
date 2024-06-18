@@ -1,5 +1,7 @@
 package ru.netology.servlet;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import ru.netology.controller.PostController;
 import ru.netology.repository.PostRepository;
 import ru.netology.service.PostService;
@@ -7,28 +9,32 @@ import ru.netology.service.PostService;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 public class MainServlet extends HttpServlet {
-    private PostController controller;
     private static String path;
     private static String method;
     private static long id;
-    private PostRepository repository;
-    private PostService service;
     final String GET = "GET";
     final String POST = "POST";
     final String DELETE = "DELETE";
+    private PostController controller;
+    private PostRepository repository;
+    private PostService service;
 
     @Override
     public void init() {
+        /*
         repository = new PostRepository();
         service = new PostService(repository);
         controller = new PostController(service);
+*/
+        final var context = new AnnotationConfigApplicationContext("ru.netology");
+        controller = context.getBean(PostController.class);
+        service = context.getBean(PostService.class);
+        repository = context.getBean(PostRepository.class);
     }
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) {
-        // если деплоились в root context, то достаточно этого
         try {
             path = req.getRequestURI();
             method = req.getMethod();
@@ -57,4 +63,3 @@ public class MainServlet extends HttpServlet {
         }
     }
 }
-

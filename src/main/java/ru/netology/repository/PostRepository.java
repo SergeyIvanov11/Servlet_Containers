@@ -1,5 +1,6 @@
 package ru.netology.repository;
 
+import org.springframework.stereotype.Repository;
 import ru.netology.model.Post;
 
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
+@Repository
 public class PostRepository {
     private final CopyOnWriteArrayList<Post> repository;
     private final AtomicLong counter;
@@ -22,8 +24,8 @@ public class PostRepository {
 
     public Optional<Post> getById(long id) {
         Optional<Post> p = null;
-        for (Post post : repository){
-            if(post.getId() == id){
+        for (Post post : repository) {
+            if (post.getId() == id) {
                 p = Optional.of(post);
             }
         }
@@ -31,13 +33,13 @@ public class PostRepository {
     }
 
     public Post save(Post post) {
-        if(post.getId() == 0){
+        if (post.getId() == 0) {
             post.setId(counter.incrementAndGet());
             repository.add(post);
             return post;
         }
-        for (Post p : repository){
-            if(p.getId() == post.getId()){
+        for (Post p : repository) {
+            if (p.getId() == post.getId()) {
                 p.setContent(post.getContent());
                 return p;
             }
@@ -48,9 +50,9 @@ public class PostRepository {
     }
 
     public void removeById(long id) {
-        for (Post post : repository){
-            if(post.getId() == id){
-               repository.remove(post);
+        for (Post post : repository) {
+            if (post.getId() == id) {
+                repository.remove(post);
             }
         }
     }
