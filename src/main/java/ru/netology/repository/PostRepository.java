@@ -4,47 +4,54 @@ import ru.netology.model.Post;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class PostRepository {
-    private final ConcurrentHashMap<AtomicLong, Post> repository;
+    private final CopyOnWriteArrayList<Post> repository;
+    private final AtomicLong counter;
 
     public PostRepository() {
-        repository = new ConcurrentHashMap<>();
+        repository = new CopyOnWriteArrayList<>();
+        counter = new AtomicLong(0);
     }
 
     public List<Post> all() {
-        return repository.values().stream().toList();
+        return repository.stream().toList();
     }
 
     public Optional<Post> getById(long id) {
-        return Optional.ofNullable(repository.get(new AtomicLong(id)));
+        Optional<Post> p = null;
+        for (Post post : repository){
+            if(post.getId() == id){
+                p = Optional.of(post);
+            }
+        }
+        return p;
     }
 
     public Post save(Post post) {
         if(post.getId() == 0){
-            return repository.put(new AtomicLong(repository.size() + 1), post);
+            post.setId(counter.incrementAndGet());
+            repository.add(post);
+            return post;
         }
-       for(AtomicLong al : repository.keySet()){
-           if(al.intValue() == post.getId()){
-               return repository.replace(al, post);
-           }
-       }
-        return repository.put(new AtomicLong(repository.size() + 1), post);
-/*
-Как должен работать save:
-
--Если от клиента приходит пост с id=0, значит, это создание нового поста. Вы сохраняете его в списке
-и присваиваете ему новый id. Достаточно хранить счётчик с целым числом и увеличивать на 1
-при создании каждого нового поста.
--Если от клиента приходит пост с id !=0, значит, это сохранение (обновление) существующего поста.
-Вы ищете его в списке по id и обновляете. Продумайте самостоятельно, что вы будете делать, если поста
-с таким id не оказалось: здесь могут быть разные стратегии.
- */
+        for (Post p : repository){
+            if(p.getId() == post.getId()){
+                p.setContent(post.getContent());
+                return p;
+            }
+        }
+        post.setId(counter.incrementAndGet());
+        repository.add(post);
+        return post;
     }
 
     public void removeById(long id) {
-        repository.remove(new AtomicLong(id));
+        for (Post post : repository){
+            if(post.getId() == id){
+               repository.remove(post);
+            }
+        }
     }
 }
