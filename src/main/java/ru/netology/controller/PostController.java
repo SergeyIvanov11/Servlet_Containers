@@ -42,9 +42,8 @@ public class PostController {
 
     public void removeById(long id, HttpServletResponse response) throws IOException {
         response.setContentType(APPLICATION_JSON);
-        final var data = service.getById(id);
         service.removeById(id);
         final var gson = new Gson();
-        response.getWriter().print(gson.toJson(data));
+        response.getWriter().print(gson.toJson(id));
     }
 }
